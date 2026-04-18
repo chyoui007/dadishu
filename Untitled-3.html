@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="container">
+        <select id="lang">
+            <option value="zh">中文</option>
+            <option value="ja">日本語</option>
+            <option value="en">English</option>
+        </select>
+
+        <button id="themeBtn"></button> <!-- 主题切换 -->
+
+        <h1 id="title"></h1>
+
+        <h3 id="user"></h3>
+
+        <button id="loginBtn"></button>
+
+        <div id="likeBox">
+            <span id="likeText"></span>
+            <span id="likeCount">0</span>
+            <button id="likeBtn">👍</button>
+        </div>
+
+        <div id="msg"></div>
+
+        <!-- 游戏部分 -->
+        <br>
+        <div id="game">
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+        </div>
+        <h4>
+            <span id="scoreLabel"></span>
+            <span id="score">0</span>
+        </h4>
+        <button id="startBtn">Start Game</button>
+        <button id="resetBtn">Reset Game</button>
+    </div>
+
+    <!-- ******************************************************************************** -->
+    <!-- css -->
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* 水平居中 */
+            justify-content: center;
+            min-height: 100vh;
+            /* 撑满屏幕高度 */
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* 语言选择框 */
+        #lang {
+            padding: 8px 30px 8px 10px;
+            /* 右边留空间给箭头 */
+            border-radius: 10px;
+            border: none;
+            background: #222;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+
+            appearance: none;
+            /* 去掉默认箭头 */
+            -webkit-appearance: none;
+        }
+
+        /* 自定义箭头 */
+        #lang {
+            background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 16px;
+        }
+
+        #lang {
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+        }
+
+        /* hover效果 */
+        #lang:hover {
+            background-color: #333;
+        }
+
+        .container {
+            background: #4b4747;
+            padding: 50px;
+            border-radius: 30px;
+            /* 圆角 */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            /* 阴影 */
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 10px;
+            background: #516352;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+
+        button:disabled {
+            background: #999;
+            /* 灰色 */
+            color: #ccc;
+            /* 字变淡 */
+            cursor: not-allowed;
+            /* 禁止手型 */
+            transform: none;
+            /* 不放大 */
+            opacity: 0.6;
+            /* 半透明 */
+            box-shadow: none;
+        }
+
+        button:disabled:hover {
+            background: #999;
+            /* 禁止 hover 变色 */
+            transform: none;
+        }
+
+        #likeBox {
+            margin: 15px 0;
+            font-size: 18px;
+        }
+
+        #score {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff5722;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        h4 {
+            margin-top: 15px;
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            border: 2px solid #333;
+            border-radius: 15px;
+            /* 添加边框 */
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            /* 垂直居中 */
+            justify-content: center;
+            /* 水平居中 */
+            cursor: pointer;
+            /* 鼠标悬停时显示为手指 */
+            transition: 0.15s;
+            /* 添加过渡效果 */
+            font-size: 60px;
+            /* 鼠标表情大小 */
+        }
+
+        #game {
+            display: grid;
+            /* 使用CSS Grid布局 */
+            grid-template-columns: repeat(3, 100px);
+            /* 定义3列，每列宽100px */
+            gap: 20px;
+            /* 格子之间的间距 */
+        }
+
+        #likeBtn.active {
+            transform: scale(2);
+            transition: 0.2s;
+        }
+
+        .pop {
+            transform: scale(2);
+            transition: 0.3s;
+        }
+
+        /* 飘字动画 */
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                /* 完全可见 */
+                transform: translate(-50%, 0) scale(1);
+                /* 初始位置 */
+            }
+
+            100% {
+                opacity: 0;
+                /* 渐隐 */
+                transform: translate(-50%, -40px) scale(1.3);
+                /* 向上飘40px + 稍微变大 */
+            }
+        }
+
+        /* 应用动画的类 */
+        .float {
+            animation: floatUp 0.6s ease-out forwards;
+            /* 0.6秒完成，逐渐减速，结束后保持最终状态 */
+        }
+
+        /* 亮起来的格子 */
+        .active {
+            background: #00ffcc;
+            /* 亮绿色背景 */
+            box-shadow: 0 0 20px #00ffcc;
+            /* 添加发光效果 */
+            transform: scale(1.1);
+            /* 格子亮起时稍微放大 */
+        }
+
+        .card:hover {
+            background: #eee;
+        }
+
+        #msg {
+            position: absolute;
+            /* 脱离文档流 */
+            top: 40%;
+            /* 垂直位置（大概中间） */
+            left: 50%;
+            /* 水平居中 */
+            transform: translate(-50%, -50%) scale(0);
+            /* 初始是0（看不见） */
+
+            font-size: 40px;
+            /* 大字 */
+            font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 0 0 10px #ffcc00;
+
+            pointer-events: none;
+            /* 不影响点击 */
+        }
+
+        /* 出现动画 */
+        .show {
+            animation: boom 0.6s ease;
+        }
+
+        @keyframes boom {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+
+            20% {
+                transform: translate(-50%, -50%) scale(1.5);
+                opacity: 1;
+            }
+
+            80% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+                /* ⭐ 保持可见 */
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+    </style>
+
+
+    <!-- ******************************************************************************* -->
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+            //定义状态变量
+            let currentLang = 'zh'; //currentLang 当前语言，初始值为中文
+            let isLogin = false; //isLogin 用户是否登录，初始值为未登录
+            let isStarted = false; //isStarted 游戏是否开始，初始值为否
+            let isDark = false; //isDark 是否为深色模式，初始值为否
+            let likeCount = 0; //likeCount 点赞数，初始值为0
+            let continuous = 0; //连续命中次数
+            let failCombo = 0; //连续失败次数
+            const cards = document.querySelectorAll(".card"); //获取所有卡片元素
+            const btn = document.getElementById("likeBtn"); //获取点赞按钮元素
+            const count = document.getElementById("likeCount"); //获取点赞数元素
+            let score = 0; //score 游戏得分，初始值为0
+            let activeIndex = 0; //当前亮的格子
+            let timer = null; //timer 定时器变量
+            let speed = 800;
+
+            //translations 翻译表
+            const translations = {
+                zh: {
+                    title: "嘿,兄dei！",
+                    login: "登录",
+                    logout: "登出",
+                    theme: "切换主题",
+                    like: "赞",
+                    username: "游客",
+                    StartGame: "开始游戏",
+                    StopGame: "停止游戏",
+                    ResetGame: "重置",
+                    scoreLabel: "分数"
+                },
+                ja: {
+                    title: "私のウェブサイトへようこそ",
+                    login: "ログイン",
+                    logout: "ログアウト",
+                    theme: "テーマを切り替える",
+                    like: "いいね",
+                    username: "ゲスト",
+                    StartGame: "ゲーム開始",
+                    StopGame: "ゲーム停止",
+                    ResetGame: "リセット",
+                    scoreLabel: "スコア"
+
+                },
+                en: {
+                    title: "Welcome to My Website",
+                    login: "Login",
+                    logout: "Logout",
+                    theme: "Switch Theme",
+                    like: "Like",
+                    username: "visitor",
+                    StartGame: "Start Game",
+                    StopGame: "Stop Game",
+                    ResetGame: "Reset",
+                    scoreLabel: "Score"
+                }
+            };
+
+            //t 函数获取当前语言的翻译文本
+            function t(key) {
+                return translations[currentLang][key];
+            }
+
+            //render 函数根据当前状态渲染界面
+            function render() {
+                document.getElementById("title").textContent = t("title");
+                document.getElementById("themeBtn").textContent = t("theme");
+                document.getElementById("likeText").textContent = t("like");
+                document.getElementById("startBtn").textContent = isStarted ? t("StopGame") : t("StartGame");
+                document.getElementById("resetBtn").textContent = t("ResetGame");
+                document.getElementById("scoreLabel").textContent = t("scoreLabel") + ":";
+                document.getElementById("likeCount").textContent = likeCount;
+                //登录状态切换
+                if (isLogin) {
+                    document.getElementById("loginBtn").textContent = t("logout");
+                } else {
+                    document.getElementById("loginBtn").textContent = t("login");
+                }
+
+                //主题切换
+                if (!isDark) {
+                    document.body.style.background = "#222";
+                    document.body.style.color = "white";
+                } else {
+                    document.body.style.background = "white";
+                    document.body.style.color = "black";
+                }
+
+                //非登录状态下，禁用点赞和游戏
+                if (isLogin) {
+                    document.getElementById("likeBtn").disabled = false;
+                    document.getElementById("startBtn").disabled = false;
+                    document.getElementById("resetBtn").disabled = false;
+                } else {
+                    document.getElementById("likeBtn").disabled = true;
+                    document.getElementById("startBtn").disabled = true;
+                    document.getElementById("resetBtn").disabled = true;
+                }
+
+                //登录显示用户名，未登录则隐藏
+                if (isLogin) {
+                    document.getElementById("user").textContent = t("username");
+                } else {
+                    document.getElementById("user").textContent = "";
+                }
+            }
+
+            //清空所有格子 → 随机选一个 → 点亮它 → 放老鼠
+            function randomActive() {
+
+                //全部清空
+                cards.forEach(card => {  //遍历所有格子（cards = 所有格子的数组）
+                    card.classList.remove("active");//移除所有格子的active类，使它们变暗
+                    card.textContent = "";//清空所有格子的文本内容，去掉🤪表情
+                });
+
+                activeIndex = Math.floor(Math.random() * cards.length); //Math.random=>0-1之间的随机数,Math.floor=向下取整，得到0-8之间的整数
+                cards[activeIndex].classList.add("active");//给随机选中的格子添加active类，使其亮起来  xx[索引].classList.add("xx") 给元素增加一个class
+                cards[activeIndex].textContent = "🤪";
+                //结果为  <div class="card active">🤪</div>
+
+            }
+
+            //点击开始按钮，开启或关闭定时器(startBtn:开始游戏)
+            document.getElementById("startBtn").addEventListener("click", () => {
+
+                if (timer) { //定时器为开始状态的话   timer用来记录定时任务番号，默认null转成布尔值为flase
+                    clearInterval(timer);//clearInterval（停止定时器）→ timer   浏览器机制：用 timer 这个“编号” → 去浏览器里找到对应的定时任务 → 删除它
+                    timer = null;//重置定时器变量
+                    isStarted = false;//游戏状态设为未开始
+                    document.getElementById("startBtn").textContent = t("StartGame");//修改按钮文本
+                } else {
+                    //浏览器生成一个定时任务并将番号赋值给timer，调用randomActive方法
+                    timer = setInterval(randomActive, speed);//定时器 = 0.8秒 → 调用randomActive刷一次老鼠
+                    randomActive();//开始时不用等0.8秒直接出老鼠
+                    isStarted = true;//游戏状态设为开始
+                    document.getElementById("startBtn").textContent = t("StopGame");//开始后更新按钮状态为结束游戏
+                }
+
+            });
+
+            //点击重置按钮，重置游戏状态和分数
+            document.getElementById("resetBtn").addEventListener("click", () => {
+                cards.forEach(card => {
+                    card.classList.remove("active");//移除所有格子的active类，发光效果
+                    card.textContent = "";//清空所有格子的文本内容，去掉老鼠表情
+                });
+                clearInterval(timer);//关闭定时器
+                timer = null;//重置定时器变量
+                isStarted = false;//游戏状态设为未开始
+                document.getElementById("startBtn").textContent = t("StartGame");//修改按钮文本
+                score = 0;//重置分数
+                document.getElementById("score").textContent = score;
+                likeCount = 0;//重置点赞数
+                document.getElementById("likeCount").textContent = likeCount;
+                activeIndex = -1;//设置一个非法值，防止索引默认为0时点第一格子直接得分
+                render();
+
+            })
+
+            //点击格子增加或减少分数，card=每个格子元素，index=格子索引
+            cards.forEach((card, index) => {
+
+                card.addEventListener("click", () => {
+                    if (!isLogin) return; //如果未登录，点击无效
+                    //if (!isStarted) return; //如果游戏未开始，点击无效
+                    if (index === activeIndex) {
+                        score++;
+                        failCombo = 0;
+                        if (score > 0) {
+                            continuous++;
+                        };
+
+                        card.textContent = "💥";
+                        setTimeout(() => {
+                            card.textContent = ""; //点击正确时，先显示爆炸表情，然后150毫秒后清空文本内容，去掉爆炸表情
+                            randomActive();
+                        }, 150);
+
+                        if (score > 0 && continuous % 3 == 0) {
+                            likeCount++;//增加点赞数
+                            document.getElementById("likeCount").textContent = likeCount;
+                            const plus = document.createElement("span"); //创建分数元素
+
+                            btn.classList.add("pop");
+                            count.classList.add("pop");
+
+                            const msg = document.getElementById("msg");
+                            msg.textContent = "😏 666";
+                            msg.classList.add("show");
+
+                            setTimeout(() => {
+                                msg.classList.remove("show");
+                            }, 600);
+
+                            plus.textContent = "+1";
+                            plus.style.position = "absolute";// 绝对定位（可以自由放在容器里的任意位置）
+                            plus.style.color = "red";// 文字颜色：红色
+                            plus.style.fontSize = "24px";   // 字体变大
+                            plus.style.fontWeight = "bold"; // 加粗
+                            plus.style.textShadow = "0 0 5px #ff0000"; // 发光
+                            plus.classList.add("float");// 添加飘字动画类
+                            plus.style.left = "60%";// 水平位置：从左边往右
+                            plus.style.top = "35%";// 垂直位置：从上往下
+                            plus.style.transform = "translateX(-50%)";// 再往左移动自身宽度的一半 → 真正水平居中
+
+                            document.getElementById("likeBox").appendChild(plus);// 把这个 +1 放到点赞区域里面
+                            setTimeout(() => {
+                                btn.classList.remove("active");//150毫秒后移除active类，结束动画效果
+                                btn.classList.remove("pop");
+                                count.classList.remove("pop");
+                                plus.remove();
+                            }, 600);
+                        };
+
+                        if (score > 0 && speed > 300 && continuous % 10 == 0) {
+                            // 1️⃣ 提速（别太快）
+                            speed = Math.max(300, speed - 100);
+                            // 2️⃣ 重启定时器（关键）
+                            clearInterval(timer);
+                            timer = setInterval(randomActive, speed);
+                            // 3️⃣ 显示提示
+                            const msg = document.getElementById("msg");
+                            msg.textContent = "🐂🍺 speeded-up 😏";
+                            msg.classList.add("show");
+
+                            setTimeout(() => {
+                                msg.classList.remove("show");
+                            }, 1000);
+
+                        }
+
+                    } else {
+                        score--;
+                        continuous = 0;
+                        failCombo++;
+
+                        if (failCombo > 0 && failCombo % 3 == 0) {
+                            const msg = document.getElementById("msg");
+                            msg.textContent = "🥬✏️";
+                            msg.classList.add("show");
+
+                            setTimeout(() => {
+                                msg.classList.remove("show");
+                            }, 600);
+                        }
+                        card.textContent = "❌";
+                        setTimeout(() => {
+                            //card.textContent = ""; //点击错误时，先显示叉表情，然后150毫秒后清空文本内容，去掉叉表情
+                            randomActive();
+                        }, 150);
+                    }
+                    document.getElementById("score").textContent = score;
+                });
+
+            });
+
+            //addEventListener 监听语言选择变化
+            document.getElementById("lang").addEventListener("change", (e) => {
+                currentLang = e.target.value; //更新当前语言
+                render(); //重新渲染界面
+            });
+
+            document.getElementById("loginBtn").addEventListener("click", () => {
+                isLogin = !isLogin; //切换登录状态
+                render();
+            });
+
+            document.getElementById("themeBtn").addEventListener("click", () => {
+                isDark = !isDark; //切换主题状态
+                render();
+            });
+
+            render(); //执行函数
+
+        });
+
+    </script>
+
+</body>
+
+</html>
