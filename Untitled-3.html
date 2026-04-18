@@ -324,7 +324,7 @@
                     like: "赞",
                     username: "游客",
                     StartGame: "开始游戏",
-                    StopGame: "停止游戏",
+                    StopGame: "暂停游戏",
                     ResetGame: "重置",
                     scoreLabel: "分数"
                 },
@@ -336,7 +336,7 @@
                     like: "いいね",
                     username: "ゲスト",
                     StartGame: "ゲーム開始",
-                    StopGame: "ゲーム停止",
+                    StopGame: "ゲームストップ",
                     ResetGame: "リセット",
                     scoreLabel: "スコア"
 
@@ -462,7 +462,7 @@
 
                 card.addEventListener("click", () => {
                     if (!isLogin) return; //如果未登录，点击无效
-                    //if (!isStarted) return; //如果游戏未开始，点击无效
+                    if (!isStarted) return; //如果游戏未开始，点击无效
                     if (index === activeIndex) {
                         score++;
                         failCombo = 0;
